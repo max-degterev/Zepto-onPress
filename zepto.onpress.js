@@ -33,7 +33,7 @@
 		doc.on('click', handler);
 	}
 	
-	$.fn.onpress = function() {
-		$.isFunction(arguments[0]) ? this.on('press', arguments[0]) : this.on('press', arguments[0], arguments[1]);
+	$.fn.onpress = function(callb) {
+		this.on('press', callb);
 	};
 })(Zepto);
