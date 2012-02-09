@@ -12,39 +12,25 @@
         target;
     
     if ($.os.touch) {
-		var handleTouchStart = function(e) {
+        doc.on('touchstart', function(e) {
             touches.x = e.touches[0].pageX;
             touches.y = e.touches[0].pageY;
             hasMoved = false;
             target = e.target;
-			
-		};
-		var handleTouchMove = function(e) {
+        });
+        doc.on('touchmove', function(e) {
             if(Math.abs(e.touches[0].pageX - touches.x) > 10 || Math.abs(e.touches[0].pageY - touches.y) > 10) {
                 hasMoved = true;
             }
-			
-		};
-		var handleTouchEnd = function(e) {
-            if ((target === e.target) && !hasMoved) {
-            	$(e.target).trigger('press', e);
-				doc.one('click', handleGhostClick); // kills ghostclick on Opera somehow
-            }
-		};
-		var handleGhostClick = function(e) {
-			e.preventDefault();
-			e.stopPropagation();
-		};
-
-        doc.on('touchstart', handleTouchStart);
-        doc.on('touchmove', handleTouchMove);
-        doc.on('touchend', handleTouchEnd);
+        });
+        doc.on('touchend', function(e) {
+            ((target === e.target) && !hasMoved) && $(e.target).trigger('press', e);
+        });
     }
     else {
-		var handleClick = function(e) {
-			$(e.target).trigger('press', e);
-		};
-        doc.on('click', handleClick);
+        doc.on('click', function(e) {
+            $(e.target).trigger('press', e);
+        });
     }
 
     $.fn.onpress = function(callb) {
