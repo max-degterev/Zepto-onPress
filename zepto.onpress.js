@@ -1,10 +1,10 @@
 /* Author:
     Max Degterev @suprMax
-	
-	$el.onpress - handles ghostclicks, not unsubscribable. Doesn't support delegation.
-	$el.on('press') - doesn't handle ghostclicks, unsubscribable. Supports delegation.
-	
-	Based on http://code.google.com/mobile/articles/fast_buttons.html
+    
+    $el.onpress - handles ghostclicks, not unsubscribable. Doesn't support delegation.
+    $el.on('press') - doesn't handle ghostclicks, unsubscribable. Supports delegation.
+    
+    Based on http://code.google.com/mobile/articles/fast_buttons.html
 */
 
 ;(function($) {
@@ -17,12 +17,12 @@
         target;
     
     if ($.os.touch) {
-		var handleMove = function(e) {
-			if (Math.abs(e.touches[0].pageX - touches.x) > 10 || Math.abs(e.touches[0].pageX - touches.y) > 10) {
-				hasMoved = true;
-			}
-		};
-		
+        var handleMove = function(e) {
+            if (Math.abs(e.touches[0].pageX - touches.x) > 10 || Math.abs(e.touches[0].pageX - touches.y) > 10) {
+                hasMoved = true;
+            }
+        };
+        
         $doc.on('touchstart', function(e) {
             touches.x = e.touches[0].pageX;
             touches.y = e.touches[0].pageY;
@@ -41,56 +41,56 @@
             $(e.target).trigger('press', e);
         });
     }
-	
-	if ($.os.touch) {
-		var ghosts = [];
     
-		var removeGhosts = function() {
-			ghosts.splice(0, 2);
-		};
+    if ($.os.touch) {
+        var ghosts = [];
+    
+        var removeGhosts = function() {
+            ghosts.splice(0, 2);
+        };
 
-		var handleGhosts = function(e) {
-			var i, l;
-			for (i = 0, l = ghosts.length; i < l; i += 2) {
-				if (Math.abs(e.pageX - ghosts[i]) < 25 && Math.abs(e.pageY - ghosts[i + 1]) < 25) {
-					e.stopPropagation();
-					e.preventDefault();
-				}
-			}
-		};
+        var handleGhosts = function(e) {
+            var i, l;
+            for (i = 0, l = ghosts.length; i < l; i += 2) {
+                if (Math.abs(e.pageX - ghosts[i]) < 25 && Math.abs(e.pageY - ghosts[i + 1]) < 25) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                }
+            }
+        };
 
-		$doc.on('click', handleGhosts);
+        $doc.on('click', handleGhosts);
 
-	    $.fn.onpress = function(callback) {
-			var touches = {},
-				hasMoved = false;
-		
-			var handleTouchStart = function(e) {
-				e.stopPropagation();
+        $.fn.onpress = function(callback) {
+            var touches = {},
+                hasMoved = false;
+        
+            var handleTouchStart = function(e) {
+                e.stopPropagation();
 
-				touches.x = e.touches[0].pageX;
-				touches.y = e.touches[0].pageY;
-				hasMoved = false;
-			};
-			
-			var handleTouchEnd = function(e) {
-				e.stopPropagation();
+                touches.x = e.touches[0].pageX;
+                touches.y = e.touches[0].pageY;
+                hasMoved = false;
+            };
+            
+            var handleTouchEnd = function(e) {
+                e.stopPropagation();
 
-				if (!hasMoved) {
-					callback.call(this, e);
-					ghosts.push(touches.x, touches.y);
-					window.setTimeout(removeGhosts, 2500);
-				}
-			};
+                if (!hasMoved) {
+                    callback.call(this, e);
+                    ghosts.push(touches.x, touches.y);
+                    window.setTimeout(removeGhosts, 2500);
+                }
+            };
 
-			this.on('touchstart', handleTouchStart);
-			$doc.on('touchmove', handleMove);
-			this.on('touchend', handleTouchEnd);
-	    };
-	}
-	else {
-		$.fn.onpress = function(callback) {
-			this.on('click', callback);
-		};
-	}
+            this.on('touchstart', handleTouchStart);
+            $doc.on('touchmove', handleMove);
+            this.on('touchend', handleTouchEnd);
+        };
+    }
+    else {
+        $.fn.onpress = function(callback) {
+            this.on('click', callback);
+        };
+    }
 })(Zepto);
