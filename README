@@ -1,1 +1,3 @@
-Zepto fast buttons. Same idea as for html5 mobile boilerplate's fast buttons. Looking for improvements, so please, help. IRL example with timestamps: http://rghost.ru/36135511/image.png
+Zepto fast buttons without nasty ghostclicks.
+Supports delegation and handlers removal, though removal feels a bit hacky and needs to be tested.
+Highly inspired by http://code.google.com/mobile/articles/fast_buttons.html

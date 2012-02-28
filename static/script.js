@@ -1,11 +1,11 @@
 var handler = function(e) {
-	e.preventDefault();
-	this.parentNode.removeChild(this);
+    e.preventDefault();
+    this.parentNode.removeChild(this);
 };
 
 var altHandler = function(e) {
-	e.preventDefault();
-	alert('sup?');
+    e.preventDefault();
+    alert('sup?');
 };
 
 $('#bind .fake').onpress(handler);
