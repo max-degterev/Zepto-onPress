@@ -94,28 +94,52 @@
 			if (args[0]) {
 				this.on('touchstart.onpress', args[0], handleTouchStart);
 				this.on('touchend.onpress', args[0], handleTouchEnd);
+				this.on('press', args[0], args[1]);
 			}
 			else {
 				this.on('touchstart.onpress', handleTouchStart);
 				this.on('touchend.onpress', handleTouchEnd);
+				this.on('press', args[1]);
 			}
         };
 		
 		$.fn.offpress = function() {
 			var args = normalizeArgs(arguments);
 			if (args[1]) {
-				args[0] ? this.off('.onpress', args[0], handlers[args[1]]) : this.off('.onpress', handlers[args[1]]);
+				if (args[0]) {
+					this.off('.onpress', args[0], handlers[args[1]]);
+					this.off('press', args[0], args[1]);
+				}
+				else {
+					this.off('.onpress', handlers[args[1]]);
+					this.off('press', args[1]);
+				}
 				delete handlers[args[1]];
 			}
 			else {
-				args[0] ? this.off('.onpress', args[0]) : this.off('.onpress');
+				if (args[0]) {
+					this.off('.onpress', args[0]);
+					this.off('press', args[0]);
+				}
+				else {
+					this.off('.onpress');
+					this.off('press');
+				}
 			}
 		};
     }
     else {
         $.fn.onpress = function() {
 			var args = normalizeArgs(arguments);
-            args[0] ? this.on('click.onpress', args[0], args[1]) : this.on('click.onpress', args[1]);
+			if (args[0]) {
+				this.on('click.onpress', args[0], args[1]);
+				this.on('press.onpress', args[0], args[1]);
+			}
+			else {
+				this.on('click.onpress', args[1]);
+				this.on('press.onpress', args[1]);
+			}
+            
         };
 		$.fn.offpress = function() {
 			var args = normalizeArgs(arguments);
