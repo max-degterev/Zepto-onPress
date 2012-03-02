@@ -15,6 +15,7 @@
     $('#someid').onpress('.childNode', function(event){});
     $('#someid').offpress('.childNode', function(event){});
     
+    TODO: find a way to remove handleTouchStart handler as well
 */
 
 ;(function($) {
@@ -53,7 +54,7 @@
             hasMoved = false;
         };
 
-        var handleMove = function(e) {
+        var handleTouchMove = function(e) {
             if (Math.abs(e.touches[0].pageX - touches.x) > 10 || Math.abs(e.touches[0].pageX - touches.y) > 10) {
                 hasMoved = true;
             }
@@ -74,7 +75,7 @@
         };
 
         $doc.on('click', handleGhosts);
-        $doc.on('touchmove', handleMove);
+        $doc.on('touchmove', handleTouchMove);
 
         $.fn.onpress = function() {
             var args = normalizeArgs(arguments);
@@ -146,4 +147,4 @@
             args[0] ? this.off('.onpress', args[0], args[1]) : this.off('.onpress', args[1]);
         };
     }
-})(Zepto);
+})(Zepto || jQuery);
