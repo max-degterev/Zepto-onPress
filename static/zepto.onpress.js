@@ -2,10 +2,10 @@
     Max Degterev @suprMax
     
     Zepto fast buttons without nasty ghostclicks.
-    Supports delegation and handlers removal, though removal feels a bit hacky and needs to be tested.
+    Supports event delegation and handlers removal.
     Highly inspired by http://code.google.com/mobile/articles/fast_buttons.html
     
-    Usage
+    Usage:
     
     bind:
     $('#someid').onpress(function(event){});
@@ -15,7 +15,9 @@
     $('#someid').onpress('.childNode', function(event){});
     $('#someid').offpress('.childNode', function(event){});
     
-    TODO: find a way to remove handleTouchStart handler as well
+    Word of advice:
+    Never ever try to attach this event handlers to: document, html, body.
+    All sorts of weirdness going to happen. Use onclick instead.
 */
 
 ;(function($) {
@@ -39,68 +41,78 @@
     };
 
     if ($.os.touch) {
-        var ghosts = [];
-
-        var touches = {},
-            $doc = $(document),
-            hasMoved = false,
-            handlers = {};
-            
-        var handleTouchStart = function(e) {
-            e.stopPropagation();
-
-            touches.x = e.touches[0].pageX;
-            touches.y = e.touches[0].pageY;
-            hasMoved = false;
-        };
-
-        var handleTouchMove = function(e) {
-            if (Math.abs(e.touches[0].pageX - touches.x) > 10 || Math.abs(e.touches[0].pageX - touches.y) > 10) {
-                hasMoved = true;
-            }
-        };
+        var ghosts = [],
+            handlers = {},
+            $doc = $(document);
 
         var removeGhosts = function() {
             ghosts.splice(0, 2);
         };
-
         var handleGhosts = function(e) {
-            var i, l;
-            for (i = 0, l = ghosts.length; i < l; i += 2) {
+            for (var i = 0, l = ghosts.length; i < l; i += 2) {
                 if (Math.abs(e.pageX - ghosts[i]) < 25 && Math.abs(e.pageY - ghosts[i + 1]) < 25) {
                     e.stopPropagation();
                     e.preventDefault();
                 }
             }
         };
-
         $doc.on('click', handleGhosts);
-        $doc.on('touchmove', handleTouchMove);
 
         $.fn.onpress = function() {
+            // Passing empty selectors or a document node cause bugs on android
+            // Just to be on the safe side allowing only element and document fragment nodes to be used
+            if (!this[0].nodeType || (this[0].nodeType !== 1 && this[0].nodeType !== 11)) {
+                return;
+            }
+
+            var touches = [],
+                that = this;
+            
             var args = normalizeArgs(arguments);
             
-            var handleTouchEnd = function(e) {
+            var handleTouchStart = function(e) {
                 e.stopPropagation();
+                var coords = e.touches ? e.touches[0] : e; // Android weirdness fix
 
-                if (!hasMoved) {
-                    args[1].call(this, e);
-                    ghosts.push(touches.x, touches.y);
+                touches[0] = coords.pageX;
+                touches[1] = coords.pageY;
+                
+                $doc.on('touchmove.onpress', handleTouchMove);
+                args[0] ? that.on('touchend.onpress', args[0], handleTouchEnd) : that.on('touchend.onpress', handleTouchEnd);
+            };
+
+            var handleTouchMove = function(e) {
+                if (Math.abs(e.touches[0].pageX - touches[0]) > 10 || Math.abs(e.touches[0].pageY - touches[1]) > 10) {
+                    resetHandlers();
+                }
+            };
+
+            var handleTouchEnd = function(e) {
+                resetHandlers();
+                args[1].call(this, e);
+                
+                if (e.type === 'touchend') {
+                    ghosts.push(touches[0], touches[1]);
                     window.setTimeout(removeGhosts, ghostsLifeTime);
                 }
             };
             
-            handlers[args[1]] = handleTouchEnd;
+            var resetHandlers = function() {
+                $doc.off('touchmove.onpress', handleTouchMove);
+                args[0] ? that.off('touchend.onpress', args[0], handleTouchEnd) : that.off('touchend.onpress', handleTouchEnd);
+            };
+            
+            handlers[args[1]] = handleTouchStart;
 
             if (args[0]) {
                 this.on('touchstart.onpress', args[0], handleTouchStart);
-                this.on('touchend.onpress', args[0], handleTouchEnd);
-                this.on('press', args[0], args[1]);
+                //this.on('click', args[0], handleTouchStart);
+                this.on('press.onpress', args[0], args[1]);
             }
             else {
                 this.on('touchstart.onpress', handleTouchStart);
-                this.on('touchend.onpress', handleTouchEnd);
-                this.on('press', args[1]);
+                //this.on('click', handleTouchStart);
+                this.on('press.onpress', args[1]);
             }
         };
         
@@ -108,23 +120,27 @@
             var args = normalizeArgs(arguments);
             if (args[1]) {
                 if (args[0]) {
-                    this.off('.onpress', args[0], handlers[args[1]]);
-                    this.off('press', args[0], args[1]);
+                    this.off('touchstart.onpress', args[0], handlers[args[1]]);
+                    //this.off('click.onpress', args[0], handlers[args[1]]);
+                    this.off('press.onpress', args[0], args[1]);
                 }
                 else {
-                    this.off('.onpress', handlers[args[1]]);
-                    this.off('press', args[1]);
+                    this.off('touchstart.onpress', handlers[args[1]]);
+                    //this.off('click.onpress', handlers[args[1]]);
+                    this.off('press.onpress', args[1]);
                 }
                 delete handlers[args[1]];
             }
             else {
                 if (args[0]) {
-                    this.off('.onpress', args[0]);
-                    this.off('press', args[0]);
+                    this.off('touchstart.onpress', args[0]);
+                    //this.off('click.onpress', args[0]);
+                    this.off('press.onpress', args[0]);
                 }
                 else {
-                    this.off('.onpress');
-                    this.off('press');
+                    this.off('touchstart.onpress');
+                    //this.off('click.onpress');
+                    this.off('press.onpress');
                 }
             }
         };
@@ -140,7 +156,6 @@
                 this.on('click.onpress', args[1]);
                 this.on('press.onpress', args[1]);
             }
-            
         };
         $.fn.offpress = function() {
             var args = normalizeArgs(arguments);

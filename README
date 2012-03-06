@@ -1,3 +1,17 @@
-Zepto fast buttons without nasty ghostclicks.
-Supports delegation and handlers removal, though removal feels a bit hacky and needs to be tested.
+#Zepto fast buttons without nasty ghostclicks.#
+Supports event delegation and handlers removal.
 Highly inspired by http://code.google.com/mobile/articles/fast_buttons.html
+    
+##Usage:##
+    
+'bind:'
+$('#someid').onpress(function(event){});
+$('#someid').offpress(function(event){});
+    
+'delegation:'
+$('#someid').onpress('.childNode', function(event){});
+$('#someid').offpress('.childNode', function(event){});
+    
+##Word of advice:##
+Never ever try to attach this event handlers to: document, html, body.
+All sorts of weirdness going to happen. Use onclick instead.
