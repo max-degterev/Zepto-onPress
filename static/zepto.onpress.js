@@ -162,4 +162,4 @@
             args[0] ? this.off('.onpress', args[0], args[1]) : this.off('.onpress', args[1]);
         };
     }
-})(Zepto || jQuery);
+})(window.Zepto || window.jQuery);
