@@ -18,6 +18,10 @@
     Word of advice:
     Never ever try to attach this event handlers to: document, html, body.
     All sorts of weirdness going to happen. Use onclick instead.
+    
+    TODO: There is a possibility of removing wrong handlers
+          since using callback function as a key is not a very good idea.
+          Think of a better way to accomplish this functionaity.
 */
 
 ;(function($) {
