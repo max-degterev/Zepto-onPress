@@ -63,9 +63,9 @@
         $doc.on('click', handleGhosts);
 
         $.fn.onpress = function() {
-            // Passing empty selectors or a document node cause bugs on android
+            // Passing empty selectors, empty arguments list or a document node cause bugs on android/iOS
             // Just to be on the safe side allowing only element and document fragment nodes to be used
-            if (!this[0].nodeType || (this[0].nodeType !== 1 && this[0].nodeType !== 11)) {
+            if (!arguments.length || !this.length || !this[0].nodeType || (this[0].nodeType !== 1 && this[0].nodeType !== 11)) {
                 return;
             }
 
