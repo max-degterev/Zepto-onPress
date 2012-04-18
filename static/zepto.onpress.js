@@ -18,10 +18,6 @@
     Word of advice:
     Never ever try to attach this event handlers to: document, html, body.
     All sorts of weirdness going to happen. Use onclick instead.
-    
-    TODO: There is a possibility of removing wrong handlers
-          since using callback function as a key is not a very good idea.
-          Think of a better way to accomplish this functionaity.
 */
 
 ;(function($) {
@@ -46,12 +42,14 @@
 
     if ($.os.touch) {
         var ghosts = [],
-            handlers = {},
-            $doc = $(document);
+            $doc = $(document),
+            callbacks = [],
+            handlers = [];
 
         var removeGhosts = function() {
             ghosts.splice(0, 2);
         };
+
         var handleGhosts = function(e) {
             for (var i = 0, l = ghosts.length; i < l; i += 2) {
                 if (Math.abs(e.pageX - ghosts[i]) < 25 && Math.abs(e.pageY - ghosts[i + 1]) < 25) {
@@ -106,7 +104,9 @@
                 args[0] ? that.off('touchend.onpress', args[0], handleTouchEnd) : that.off('touchend.onpress', handleTouchEnd);
             };
             
-            handlers[args[1]] = handleTouchStart;
+
+            callbacks.push(args[1]);
+            handlers.push(handleTouchStart);
 
             if (args[0]) {
                 this.on('touchstart.onpress', args[0], handleTouchStart);
@@ -121,19 +121,27 @@
         };
         
         $.fn.offpress = function() {
-            var args = normalizeArgs(arguments);
+            var args = normalizeArgs(arguments),
+                i;
+
             if (args[1]) {
+                i = (typeof callbacks !== 'undefined') ? callbacks.indexOf(args[1]) : -2;
+
+                if (i < 0) { // Something went terribly wrong and there is no associated callback/handler
+                    return;
+                }
                 if (args[0]) {
-                    this.off('touchstart.onpress', args[0], handlers[args[1]]);
-                    //this.off('click.onpress', args[0], handlers[args[1]]);
+                    this.off('touchstart.onpress', args[0], handlers[i]);
+                    //this.off('click.onpress', args[0], this[0].handlers[i]);
                     this.off('press.onpress', args[0], args[1]);
                 }
                 else {
-                    this.off('touchstart.onpress', handlers[args[1]]);
-                    //this.off('click.onpress', handlers[args[1]]);
+                    this.off('touchstart.onpress', handlers[i]);
+                    //this.off('click.onpress', this[0].handlers[i]);
                     this.off('press.onpress', args[1]);
                 }
-                delete handlers[args[1]];
+                callbacks.splice(i, 1);
+                handlers.splice(i, 1);
             }
             else {
                 if (args[0]) {

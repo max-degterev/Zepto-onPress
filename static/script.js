@@ -1,15 +1,15 @@
 var handler = function(e) {
     e.preventDefault();
-    this.parentNode.removeChild(this);
+    alert('handler');
 };
 var differentHandler = function(e) {
     e.preventDefault();
-    alert('sup?');
+    alert('different handler');
 };
 
 var altHandler = function(e) {
     e.preventDefault();
-    alert('sup?');
+    alert('alt handler');
 };
 
 $('#bind .fake').onpress(handler);
@@ -17,8 +17,6 @@ $('#bind .fake').onpress(handler);
 $('#delegate').onpress('.fake', handler);
 $('#delegate').onpress('.fake', altHandler);
 $('#delegate').onpress('.fake', differentHandler);
-$('#delegate').offpress('.fake', handler);
-$('#delegate').offpress('.fake', differentHandler);
+//$('#delegate').offpress('.fake', handler);
+//$('#delegate').offpress('.fake', differentHandler);
 
-
-$('#delegate .fake').trigger('press');
