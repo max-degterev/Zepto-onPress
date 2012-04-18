@@ -104,7 +104,6 @@
                 args[0] ? that.off('touchend.onpress', args[0], handleTouchEnd) : that.off('touchend.onpress', handleTouchEnd);
             };
             
-
             callbacks.push(args[1]);
             handlers.push(handleTouchStart);
 
@@ -127,11 +126,13 @@
             if (args[1]) {
                 i = (typeof callbacks !== 'undefined') ? callbacks.indexOf(args[1]) : -2;
 
+
                 if (i < 0) { // Something went terribly wrong and there is no associated callback/handler
                     return;
                 }
                 if (args[0]) {
                     this.off('touchstart.onpress', args[0], handlers[i]);
+
                     //this.off('click.onpress', args[0], this[0].handlers[i]);
                     this.off('press.onpress', args[0], args[1]);
                 }
